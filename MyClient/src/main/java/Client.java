@@ -1,51 +1,80 @@
 import java.net.*;
 import java.io.*;
 
-// NOTE: the 'output' variable is called 'out' in the original code
-
 public class Client {
     private Socket socket = null;
     private DataInputStream input = null;
-    // add INPUT stream to handle server replies:
-    private DataInputStream replies = null;
+    private DataInputStream serverResponse = null;
     private DataOutputStream output = null;
 
     public Client(String address, int port) {
+        startClient(address, port);
+        mainLoop();
+        closeClient();
+    }
+
+    public void mainLoop() {
+        String line = "";
+        while (!line.equals("quit")) {
+            try {
+                // input
+                line = input.readLine();
+                output.writeUTF(line);
+                // response
+                responseHandler(serverResponse.readUTF());
+            } catch (IOException i) {
+                System.out.println(i);
+                closeClient();
+            }
+        }
+    }
+
+    public void startClient(String address, int port) {
         try {
             socket = new Socket(address, port);
             System.out.println("Connected");
             input = new DataInputStream(System.in);
-            // initialise server reply INPUT stream:
-            replies = new DataInputStream(
+            serverResponse = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
             output = new DataOutputStream(socket.getOutputStream());
         } catch (UnknownHostException u) {
             System.out.println(u);
+            closeClient();
         } catch (IOException i) {
             System.out.println(i);
+            closeClient();
         }
-        String line = "";
-        // add String to store server replies:
-        String reply = "";
-        while (!line.equals("Over")) {
-            try {
-                line = input.readLine();
-                output.writeUTF(line);
-                // continuously read server replies in main loop:
-                reply = replies.readUTF();
-                System.out.println(reply);
-            } catch (IOException i) {
-                System.out.println(i);
-            }
-        }
+    }
+
+    public void closeClient() {
         try {
             input.close();
-            // Close the new data stream:
-            replies.close();
+            serverResponse.close();
             output.close();
             socket.close();
         } catch (IOException i) {
             System.out.println(i);
+            closeClient();
+        }
+    }
+
+    private void responseHandler(String response) {
+        String query = (response.contains(":")) ? response.split(":")[1] : response;
+        char type = (response.contains(":")) ? response.charAt(0) : 'n';
+        switch (type) {
+            case 'w':
+                System.out.println(query);
+                try {
+                    responseHandler(serverResponse.readUTF());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case 't':
+                System.out.println("Token: " + query);
+                break;
+            default:
+                System.out.println(query);
         }
     }
 

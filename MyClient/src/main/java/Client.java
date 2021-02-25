@@ -1,11 +1,12 @@
 import java.net.*;
 import java.io.*;
+import java.util.Scanner;
 
 public class Client {
-    private Socket socket = null;
-    private DataInputStream input = null;
-    private DataInputStream serverResponse = null;
-    private DataOutputStream output = null;
+    private Socket socket;
+    private Scanner userInput;
+    private DataInputStream serverResponse;
+    private DataOutputStream output;
 
     public Client(String address, int port) {
         startClient(address, port);
@@ -18,7 +19,7 @@ public class Client {
         while (!line.equals("quit")) {
             try {
                 // input
-                line = input.readLine();
+                line = userInput.nextLine();
                 output.writeUTF(line);
                 // response
                 responseHandler(serverResponse.readUTF());
@@ -33,10 +34,10 @@ public class Client {
         try {
             socket = new Socket(address, port);
             System.out.println("Connected");
-            input = new DataInputStream(System.in);
             serverResponse = new DataInputStream(
                     new BufferedInputStream(socket.getInputStream()));
             output = new DataOutputStream(socket.getOutputStream());
+            userInput = new Scanner(new BufferedInputStream(System.in));
         } catch (UnknownHostException u) {
             System.out.println(u);
             closeClient();
@@ -48,7 +49,7 @@ public class Client {
 
     public void closeClient() {
         try {
-            input.close();
+            userInput.close();
             serverResponse.close();
             output.close();
             socket.close();
@@ -60,21 +61,18 @@ public class Client {
 
     private void responseHandler(String response) {
         String query = (response.contains(":")) ? response.split(":")[1] : response;
-        char type = (response.contains(":")) ? response.charAt(0) : 'n';
+        char type = (response.contains(":")) ? response.charAt(0) : 'x';
         switch (type) {
             case 'w':
-                System.out.println(query);
                 try {
                     responseHandler(serverResponse.readUTF());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                break;
             case 't':
                 System.out.println("Token: " + query);
-                break;
-            default:
-                System.out.println(query);
+            case 'x':
+                System.out.println("- " + query);
         }
     }
 

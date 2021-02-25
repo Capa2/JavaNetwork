@@ -3,15 +3,16 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Server {
-    private Socket socket = null;
-    private ServerSocket server = null;
-    private DataInputStream input = null;
-    private ArrayList<User> users = new ArrayList<User>();
-    private DataOutputStream output = null;
+    private Socket socket;
+    private ServerSocket server;
+    private DataInputStream input;
+    private ArrayList<User> users;
+    private DataOutputStream output;
 
     public Server(int port) {
+        users = new ArrayList<User>();
         startServer(port);
-        users.add(new User(1000, "johan", "asd"));
+        users.add(new User(1420, "johan", "asd"));
         mainLoop();
         closeServer();
     }
@@ -20,19 +21,15 @@ public class Server {
         for (User u : users) {
             if (u.getUsername().equals(login.split(":")[0])
                     && u.getPassword().equals(login.split(":")[1])) {
-                // login success
                 loginSucces(u);
-                break;
-            } else {
-                // login fail
-                System.out.println("User failed to login");
-                try {
-                    output.writeUTF("e:Login failed");
-                } catch (IOException i) {
-                    i.printStackTrace();
-                    closeServer();
-                }
+                return;
             }
+        }
+        try {
+            output.writeUTF("e:Login failed");
+        } catch (IOException i) {
+            i.printStackTrace();
+            closeServer();
         }
     }
 
@@ -53,6 +50,7 @@ public class Server {
             try {
                 line = input.readUTF();
                 System.out.println(line);
+                output.writeUTF(".");
                 if (line.startsWith("login")) {
                     login(line.split(" ")[1] + ":" + line.split(" ")[2]);
                 }

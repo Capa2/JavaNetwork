@@ -1,3 +1,5 @@
+package collections;
+
 public class User {
     int id;
     String username, password;
@@ -32,3 +34,4 @@ public class User {
         this.password = password;
     }
 }
+

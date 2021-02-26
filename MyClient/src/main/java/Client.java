@@ -1,41 +1,29 @@
-import services.Connection;
-import services.UserInput;
+import services.ClientConnection;
+import services.Input;
+import services.Stream;
 
 public class Client {
-    private Connection con;
-    private UserInput userInput;
+    volatile private ClientConnection con;
+    volatile private Input userInput;
 
     public Client(String address, int port) {
-        userInput = new UserInput();
-        con = new Connection(address, port);
-        con.open();
-        mainLoop();
-        con.close();
-    }
-
-    public void mainLoop() {
-        String line = "";
-        while (!line.equals("quit")) {
-            line = userInput.nextLine();
-            con.push(line);
-            responseHandler(con.pull());
+        con = new ClientConnection(address, port);
+        userInput = new Input();
+        Thread connectionThread = new Thread(con);
+        Thread inStream = new Thread(new Stream(con));
+        Thread outStream = new Thread(new Stream(con, userInput));
+        connectionThread.start();
+        try {
+            connectionThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        inStream.start();
+        outStream.start();
+
     }
 
-    private void responseHandler(String response) {
-        String query = (response.contains(":")) ? response.split(":")[1] : response;
-        char type = (response.contains(":")) ? response.charAt(0) : 'x';
-        switch (type) {
-            case 'w':
-                responseHandler(con.pull());
-            case 't':
-                System.out.println("Token: " + query);
-            case 'x':
-                System.out.println("- " + query);
-        }
-    }
-
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         Client client = new Client("127.0.0.1", 5000);
     }
 }

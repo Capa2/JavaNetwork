@@ -13,6 +13,7 @@ public class Users {
     public void add(int id, String username, String password) {
         users.add(new User(id, username, password));
     }
+
     public Boolean validateUser(String username, String password) {
         for (User u : users) {
             if (u.getUsername().equals(username)
@@ -22,6 +23,7 @@ public class Users {
         }
         return false;
     }
+
     public User getValidUser(String username, String password) {
         for (User u : users) {
             if (u.getUsername().equals(username)
@@ -30,6 +32,12 @@ public class Users {
             }
         }
         return null;
+    }
+
+    public void addSampleUsers() {
+        add(1001, "johan", "jo");
+        add(1002, "Donald", "do");
+        add(1003, "Moe", "mo");
     }
 
     public User getUser(int id) {
@@ -46,9 +54,4 @@ public class Users {
         return null;
     }
 
-    public void addSampleUsers() {
-        add(1001, "johan", "jo");
-        add(1002, "Donald", "do");
-        add(1003, "Moe", "mo");
-    }
 }

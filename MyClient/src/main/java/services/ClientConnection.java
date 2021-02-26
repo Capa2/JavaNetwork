@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class ClientConnection implements Connection, Runnable {
+public class ClientConnection implements Connection {
     Socket inputSocket;
     DataInputStream input;
     DataOutputStream output;
@@ -16,10 +16,6 @@ public class ClientConnection implements Connection, Runnable {
     public ClientConnection(String address, int port) {
         this.address = address;
         this.port = port;
-    }
-    @Override
-    public void run() {
-        open();
     }
 
     public void open() {

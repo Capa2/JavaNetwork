@@ -15,7 +15,7 @@ public class Server {
 
     private void login(String username, String password) {
         try {
-            con.push("Login success");
+            con.push("Logging in");
             userSession(users.getValidUser(username, password));
         } catch (NullPointerException e) {
             con.push("Login failed");
@@ -25,15 +25,17 @@ public class Server {
     private void userSession(User user) {
         System.out.println("Login success");
         con.push("w:Velkommen " + user.getUsername());
-        con.push("t:" + user.getId());
+        //con.push("t:" + user.getId());
     }
 
     private void systemLoop() {
             String line = "";
             while (!line.equals("quit")) {
                 line = con.pull();
-                System.out.println(line);
-                if (line.startsWith("login")) login(line.split(" ")[1], line.split(" ")[2]);
+                System.out.println(": " + line);
+                if (line.startsWith("login"))
+                    login(line.split(" ")[1],
+                          line.split(" ")[2]);
                 else con.push("You said: " + line);
             }
     }

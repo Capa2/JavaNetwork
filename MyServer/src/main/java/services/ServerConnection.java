@@ -33,9 +33,10 @@ public class ServerConnection implements Connection {
     public void close() {
         try {
             System.out.println("Closing connection");
+            output.flush();
+            output.close();
             inputSocket.close();
             input.close();
-            output.close();
         } catch (IOException i) {
             System.out.println(i);
         }

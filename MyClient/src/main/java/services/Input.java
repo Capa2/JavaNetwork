@@ -3,7 +3,7 @@ package services;
 import java.io.BufferedInputStream;
 import java.util.Scanner;
 
-public class Input implements Runnable {
+public class Input {
     Scanner input;
 
     public Input() {
@@ -16,8 +16,5 @@ public class Input implements Runnable {
 
     public void close() {
         input.close();
-        Thread.yield();
-    }
-    public void run() {
     }
 }

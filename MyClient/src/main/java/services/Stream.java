@@ -6,6 +6,7 @@ public class Stream implements Runnable {
 
     @Override
     public void run() {
+        con.open();
         while (in != null) {
             String line = in.nextLine();
             if (line.equals("quit")) break;
@@ -16,16 +17,18 @@ public class Stream implements Runnable {
                 if (!pullHandler(con.pull())) break;
             } catch (NullPointerException e) {break;}
         }
+        try {
+            con.close();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Thread.yield();
     }
 
-    public Stream(Connection con, Input in) { // run as: push stream
+    public Stream(Connection con, boolean input) { // run as: push stream
         this.con = con;
-        this.in = in;
-    }
-    public Stream(Connection con) { // run as: pull stream
-        this.con = con;
-        this.in = null;
+        this.in = (input) ? new Input() : null;
     }
 
     private boolean pullHandler(String pull) {
@@ -39,6 +42,7 @@ public class Stream implements Runnable {
                 System.out.println(query);
                 return false;
             default:
+                System.out.print(": ");
                 System.out.println(query);
                 return true;
         }
